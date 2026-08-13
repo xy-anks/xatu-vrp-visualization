@@ -23,21 +23,25 @@ def calculate_distance(point1, point2):
 
 def build_distance_matrix(points):
     """
-    Build a distance matrix for all locations.
+    Build a symmetric distance matrix for all locations.
     """
+    
+    # ① 点的数量
+    n = len(points)
 
-    matrix = []
+    # ② 创建一个 n × n 的全 0 矩阵
+    matrix = [[0] * n for _ in range(n)]
 
-    for i in range(len(points)):
+    # ③ 只计算矩阵的上三角部分
+    for i in range(n):
+        for j in range(i + 1, n):
 
-        row = []
-
-        for j in range(len(points)):
-
+            # ④ 计算两个点之间的距离
             distance = calculate_distance(points[i], points[j])
 
-            row.append(distance)
+            # ⑤ 同时填入两个对称位置
+            matrix[i][j] = distance
+            matrix[j][i] = distance
 
-        matrix.append(row)
-
+    # ⑥ 返回距离矩阵
     return matrix
