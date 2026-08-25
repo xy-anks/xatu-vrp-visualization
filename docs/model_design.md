@@ -11,7 +11,6 @@ The system contains four main entities:
 - Vehicle
 - VRPProblem
 
-
 ---
 
 # 1. Station

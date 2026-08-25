@@ -1,6 +1,6 @@
-from backend.utils.distance import build_distance_matrix
-from backend.models.station import Station
-from backend.models.delivery_point import DeliveryPoint
+from utils.distance import build_distance_matrix
+from models.station import Station
+from models.delivery_point import DeliveryPoint
 
 
 station = Station(
