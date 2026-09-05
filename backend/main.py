@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from backend.api.solve import router
 
 
-@app.get("/")
-def root():
-    return {
-        "message": "VRP Backend is running!"
-    }
+app = FastAPI(
+    title="XATU VRP Visualization",
+    description="Campus Vehicle Routing Problem Visualization System",
+    version="0.1.0"
+)
+
+
+app.include_router(router)
