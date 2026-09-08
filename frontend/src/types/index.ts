@@ -66,3 +66,31 @@ export interface SolveResponse {
 export interface SolveRequest {
   algorithm: string
 }
+
+// ========== 前端场景类型(不影响后端)==========
+// 两个仿真场景:真实世界 / 西安工大校园
+// 目前后端数据相同,仅用于 UI 区分
+export type Scene = 'real-world' | 'xatu-campus'
+
+// 场景元信息:供 Home 按钮与 SceneSwitcher 复用
+export interface SceneMeta {
+  id: Scene
+  emoji: string
+  title: string
+  subtitle: string
+}
+
+export const SCENES: SceneMeta[] = [
+  {
+    id: 'real-world',
+    emoji: '🌍',
+    title: '真实世界物流模拟',
+    subtitle: 'Real World Simulation',
+  },
+  {
+    id: 'xatu-campus',
+    emoji: '🏫',
+    title: '西安工大校园配送模拟',
+    subtitle: 'XATU Campus Simulation',
+  },
+]
