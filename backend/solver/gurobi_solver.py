@@ -41,7 +41,7 @@ class GurobiSolver(BaseSolver):
     """
 
     name = "gurobi"
-    description = "Exact solver via Gurobi (MTZ formulation)"
+    description = "Exact optimization solver via Gurobi (MTZ formulation)"
 
     def __init__(self, time_limit=60, output_flag=0):
         self.time_limit = time_limit    # solver time limit in seconds
@@ -49,19 +49,25 @@ class GurobiSolver(BaseSolver):
 
     def solve(self, problem):
 
-        cities = problem.cities
-        depot = problem.depot
-        demands = problem.demands
-        capacity = problem.capacity
+        customers = problem.customers
+        cities = [
+            customer.id
+            for customer in customers
+        ]
+        depot = problem.depot.id
+        demands = {
+            customer.id: customer.demand
+            for customer in customers
+        }
+        capacity = problem.vehicles[0].capacity
+        num_vehicles = len(problem.vehicles)
         distance_matrix = problem.distance_matrix
-        num_vehicles = problem.num_vehicles
 
         if num_vehicles is None:
             raise ValueError(
                 "Gurobi solver requires num_vehicles "
                 "(the vehicle count is a hard constraint in the model)"
             )
-
         nodes = [depot] + cities
 
         model = gp.Model("CVRP")

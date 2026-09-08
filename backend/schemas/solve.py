@@ -1,23 +1,24 @@
 from pydantic import BaseModel
-from typing import List, Optional
-
+from typing import List
 
 class SolveRequest(BaseModel):
+    """
+    Request from frontend.
+    Only choose algorithm.
+    """
     algorithm: str
-    cities: list
-    depot: int
-    demands: dict
-    capacity: int
-    distance_matrix: dict
-    num_vehicles: Optional[int] = None
-
-
 
 class RouteResponse(BaseModel):
+    """
+    One vehicle route.
+    """
     vehicle_id: int
-    path: list
-
+    route: List[int]
 
 class SolveResponse(BaseModel):
+    """
+    Unified response returned by API.
+    """
     algorithm: str
     routes: List[RouteResponse]
+    total_distance: float

@@ -16,12 +16,19 @@ class NearestNeighborSolver(BaseSolver):
 
     def solve(self, problem):
 
-        cities = problem.cities
-        depot = problem.depot
-        demands = problem.demands
-        capacity = problem.capacity
+        customers = problem.customers
+        cities = [
+            customer.id
+            for customer in customers
+        ]
+        depot = problem.depot.id
+        demands = {
+            customer.id: customer.demand
+            for customer in customers
+        }
+        capacity = problem.vehicles[0].capacity
+        num_vehicles = len(problem.vehicles)
         distance_matrix = problem.distance_matrix
-        num_vehicles = problem.num_vehicles
 
         # ---- Capacity feasibility check ----
 

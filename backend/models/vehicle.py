@@ -1,13 +1,9 @@
 class Vehicle:
-    """
-    Represents a campus delivery vehicle.
-    """
+
     def __init__(
         self,
-        id: int,
-        capacity: int,
-        speed: float
+        id,
+        capacity
     ):
         self.id = id
         self.capacity = capacity
-        self.speed = speed

@@ -1,20 +1,16 @@
 class VRPProblem:
     """
-    Data model for a Capacitated Vehicle Routing Problem (CVRP).
+    Data model for a Capacitated Vehicle Routing Problem.
     """
 
     def __init__(
         self,
-        cities,
         depot,
-        demands,
-        capacity,
-        distance_matrix,
-        num_vehicles=None
+        customers,
+        vehicles,
+        distance_matrix
     ):
-        self.cities = cities
         self.depot = depot
-        self.demands = demands
-        self.capacity = capacity
+        self.customers = customers
+        self.vehicles = vehicles
         self.distance_matrix = distance_matrix
-        self.num_vehicles = num_vehicles

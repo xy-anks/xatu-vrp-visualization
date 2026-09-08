@@ -1,0 +1,47 @@
+{
+    "depot": {
+        "id": 0,
+        "name": "校园快递驿站",
+        "latitude": 0,
+        "longitude": 0
+    },
+
+    "buildings": [
+        {
+            "id": 1,
+            "name": "1号宿舍楼",
+            "latitude": 3,
+            "longitude": 4,
+            "demand": 10
+        },
+
+        {
+            "id": 2,
+            "name": "2号宿舍楼",
+            "latitude": 6,
+            "longitude": 8,
+            "demand": 15
+        },
+
+        {
+            "id": 3,
+            "name": "3号宿舍楼",
+            "latitude": 5,
+            "longitude": 2,
+            "demand": 8
+        },
+
+        {
+            "id": 4,
+            "name": "4号宿舍楼",
+            "latitude": 9,
+            "longitude": 6,
+            "demand": 12
+        }
+    ],
+
+    "vehicles": {
+        "number": 2,
+        "capacity": 30
+    }
+}

@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
-from backend.api.solve import router
+from backend.api.solve import router as solve_router
+from backend.api.algorithm import router as algorithm_router
+from backend.api.campus import router as campus_router
 
 
 app = FastAPI(
@@ -10,4 +12,14 @@ app = FastAPI(
 )
 
 
-app.include_router(router)
+app.include_router(
+    solve_router
+)
+
+app.include_router(
+    algorithm_router
+)
+
+app.include_router(
+    campus_router
+)
