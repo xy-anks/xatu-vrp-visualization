@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pathlib import Path
 
 from backend.schemas.solve import (
     SolveRequest,
@@ -12,13 +13,14 @@ from backend.utils.campus_loader import create_campus_problem
 
 
 router = APIRouter()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 @router.post("/solve", response_model=SolveResponse)
 def solve_vrp(request: SolveRequest):
 
     problem = create_campus_problem(
-        "data/campus.json"
+        str(BASE_DIR / "data" / "campus.json")
     )
 
 
@@ -28,6 +30,13 @@ def solve_vrp(request: SolveRequest):
 
 
     result = solver.solve(problem)
+
+
+    if result is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Solver failed to find a feasible solution."
+        )
 
 
     routes = []
