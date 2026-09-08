@@ -1,21 +1,23 @@
 # XATU VRP Visualization
 
-An interactive Vehicle Routing Problem (VRP) visualization system based on the real map of Xi'an Technological University.
+An interactive Vehicle Routing Problem (VRP) visualization system for campus logistics scenarios.
 
 ## 📖 Overview
 
-This project aims to build a web-based VRP visualization platform for campus logistics scenarios.
+The system models campus delivery scenarios as a Capacitated Vehicle Routing Problem (CVRP), providing route optimization and visualization capabilities.
 
-The system uses the real campus map of Xi'an Technological University to simulate delivery tasks, optimize vehicle routes, and visualize the routing process interactively.
+The current version focuses on backend modeling, optimization algorithms, and API services. A campus map-based interactive visualization interface is under development.
 
-## ✨ Features (Planned)
+## ✨ Features 
 
-- 🗺️ Real campus map visualization
-- 📦 Random order generation
-- 🚚 Vehicle Routing Problem (VRP) solver
-- 📍 Interactive route animation
-- 📊 Logistics statistics dashboard
-- ⚙️ Adjustable simulation parameters
+- 🏢 Campus logistics scenario modeling
+- 📦 Delivery customer and demand modeling
+- 🚚 CVRP route optimization
+- ⚙ Multiple solver integration
+- 🔌 FastAPI backend service
+- 📍 Campus data loading API
+- 🗺 Interactive visualization (Developing)
+- 🚛 Vehicle animation (Developing)
 
 ## 🛠️ Tech Stack
 
@@ -30,7 +32,7 @@ The system uses the real campus map of Xi'an Technological University to simulat
 ### Algorithms
 - Nearest Neighbor
 - Clarke-Wright Savings
-- Gurobi (Planned)
+- Gurobi 
 
 ## 📁 Project Structure
 
@@ -38,11 +40,20 @@ The system uses the real campus map of Xi'an Technological University to simulat
 xatu-vrp-visualization/
 │
 ├── backend/
+|   ├── api/
+|   ├── models/
+|   ├── schemas/
+|   ├── solver/
+|   ├── tests/
+|   ├── utils/
+|   └── main.py
 ├── frontend/
 ├── data/
 │   ├── raw/
-│   └── processed/
+|   ├── processed/
+│   └── campus.json
 ├── docs/
+|   └── model_design.md
 ├── assets/
 ├── README.md
 └── requirements.txt
@@ -50,34 +61,39 @@ xatu-vrp-visualization/
 
 ## 🚀 Development Roadmap
 
-### Phase 1
-- [ ] Project initialization
-- [ ] Campus map integration
-- [ ] Random order generation
+### Phase 1: Backend Foundation ✅
+- [x] Project initialization
+- [x] CVRP data models
+- [x] Depot / Customer / Vehicle models
+- [x] Optimization solver implementation
+- [x] FastAPI backend API
 
-### Phase 2
-- [ ] VRP solver implementation
-- [ ] Backend API
-- [ ] Frontend visualization
+### Phase 2: Visualization Interface 🚧
+- [ ] React frontend
+- [ ] Campus map visualization
+- [ ] Route display
+- [ ] Algorithm selection
 
-### Phase 3
+### Phase 3: Simulation Enhancement
 - [ ] Vehicle animation
 - [ ] Dashboard
-- [ ] Performance optimization
+- [ ] Dynamic order generation
 
 ## 📌 Future Work
-
-- Capacitated VRP (CVRP)
 - VRP with Time Windows (VRPTW)
 - Multi-depot VRP
 - Dynamic order generation
-- Simulation analysis
+- Real-time simulation
+- Large-scale optimization
 
 ## 👤 Author
 
-Logistics Management Student  
+**Kelun Zhang**
+
+Undergraduate Student in Logistics Management  
+School of Economics and Management  
 Xi'an Technological University
 
 ---
 
-**Status:** 🚧 In Development
+**Status:** 🚧 Backend completed, visualization in development

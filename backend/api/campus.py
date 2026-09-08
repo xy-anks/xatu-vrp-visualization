@@ -1,16 +1,17 @@
 from fastapi import APIRouter
+from pathlib import Path
 
 from backend.utils.campus_loader import load_campus_data
 
 
 router = APIRouter()
-
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 @router.get("/campus")
 def get_campus():
 
     depot, customers, vehicles = load_campus_data(
-        "data/campus.json"
+        str(BASE_DIR / "data" / "campus.json")
     )
 
 
