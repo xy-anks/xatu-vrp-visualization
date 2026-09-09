@@ -1,0 +1,38 @@
+{
+  "scene": "xatu-campus",
+  "coordinate_system": "norm",
+
+  "map": {
+    "image": "xatu-campus-map.png",
+    "width": 1691,
+    "height": 1080
+  },
+
+  "depot": {
+    "id": "depot",
+    "name": "快递驿站",
+    "type": "depot",
+    "norm": { "x": 0.692, "y": 0.514 }
+  },
+
+  "customers": [
+    { "id": "dorm_1",    "name": "1公寓",    "type": "dorm", "norm": { "x": 0.683, "y": 0.356 } },
+    { "id": "dorm_2",    "name": "2公寓",    "type": "dorm", "norm": { "x": 0.724, "y": 0.421 } },
+    { "id": "dorm_3",    "name": "3公寓",    "type": "dorm", "norm": { "x": 0.713, "y": 0.273 } },
+    { "id": "dorm_4",    "name": "4公寓",    "type": "dorm", "norm": { "x": 0.742, "y": 0.338 } },
+    { "id": "dorm_5",    "name": "5公寓",    "type": "dorm", "norm": { "x": 0.775, "y": 0.394 } },
+    { "id": "dorm_6",    "name": "6公寓",    "type": "dorm", "norm": { "x": 0.754, "y": 0.514 } },
+    { "id": "dorm_7",    "name": "7公寓",    "type": "dorm", "norm": { "x": 0.798, "y": 0.514 } },
+    { "id": "dorm_8",    "name": "8公寓",    "type": "dorm", "norm": { "x": 0.813, "y": 0.458 } },
+    { "id": "dorm_9",    "name": "9公寓",    "type": "dorm", "norm": { "x": 0.837, "y": 0.593 } },
+    { "id": "dorm_10",   "name": "10公寓",   "type": "dorm", "norm": { "x": 0.787, "y": 0.676 } },
+    { "id": "dorm_intl", "name": "留学生公寓", "type": "dorm", "norm": { "x": 0.787, "y": 0.745 } },
+    { "id": "dorm_11",   "name": "11公寓",   "type": "dorm", "norm": { "x": 0.405, "y": 0.361 } },
+    { "id": "dorm_12",   "name": "12公寓",   "type": "dorm", "norm": { "x": 0.378, "y": 0.361 } },
+    { "id": "dorm_13",   "name": "13公寓",   "type": "dorm", "norm": { "x": 0.390, "y": 0.255 } },
+    { "id": "dorm_14",   "name": "14公寓",   "type": "dorm", "norm": { "x": 0.346, "y": 0.361 } },
+    { "id": "dorm_15",   "name": "15公寓",   "type": "dorm", "norm": { "x": 0.520, "y": 0.264 } },
+    { "id": "dorm_16",   "name": "16公寓",   "type": "dorm", "norm": { "x": 0.310, "y": 0.361 } },
+    { "id": "dorm_shuang", "name": "双宿楼",  "type": "dorm", "norm": { "x": 0.260, "y": 0.648 } }
+  ]
+}
