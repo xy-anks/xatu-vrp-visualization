@@ -13,7 +13,6 @@ SCENES_DIR = BASE_DIR / "data" / "scenes"
 # to its static data file. Register new scenes here.
 SCENE_FILES = {
     "xatu-campus": "xatu-campus.json",
-    "real-world": "real-world.json",
 }
 
 
@@ -25,7 +24,7 @@ def _extract_coordinate(node_data, coordinate_system):
     Extract generic planar (x, y) coordinates from a raw node dict.
 
     norm: image map, normalized coords in [0, 1]
-    geo:  real-world map, x = longitude, y = latitude
+    geo:  geographic map, x = longitude, y = latitude
     """
 
     if coordinate_system == "norm":

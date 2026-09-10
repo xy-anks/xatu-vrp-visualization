@@ -55,39 +55,6 @@ def test_load_xatu_campus():
         pass
 
 
-def test_load_real_world():
-    """
-    SceneMap should correctly load the static real-world map:
-    geo coordinate system, depot and store nodes with
-    longitude (x) / latitude (y) coordinates.
-    """
-
-    scene = load_scene("real-world")
-
-    # ---- Scene identity ----
-    assert scene.scene_id == "real-world"
-    assert scene.coordinate_system == "geo"
-
-    # ---- Depot ----
-    assert scene.depot.id == "depot"
-    assert scene.depot.type == "depot"
-
-    # ---- Customers: store nodes with plausible geo coords ----
-    assert len(scene.customers) > 0
-
-    customer_ids = [customer.id for customer in scene.customers]
-    assert len(set(customer_ids)) == len(customer_ids)
-    assert "depot" not in customer_ids
-
-    for customer in scene.customers:
-        assert customer.type == "store"
-
-    # geo 约定:x = longitude, y = latitude,量级必须在经纬度范围内
-    for node in scene.all_nodes():
-        assert -180.0 <= node.x <= 180.0
-        assert -90.0 <= node.y <= 90.0
-
-
 def test_unknown_scene_raises():
     """
     Loading an unregistered scene id must raise ValueError.

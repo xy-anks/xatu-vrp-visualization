@@ -52,31 +52,6 @@ def test_campus_returns_static_scene():
     assert "orders" not in data
 
 
-def test_campus_real_world_returns_geo_coords():
-    """
-    GET /campus?scene=real-world (geo) must additionally expose
-    latitude / longitude per node for the frontend RealWorldMap,
-    while still carrying no dynamic simulation fields.
-    """
-
-    data = get_campus("real-world")
-
-    assert data["scene"] == "real-world"
-    assert data["coordinate_system"] == "geo"
-
-    for node in [data["depot"], *data["customers"]]:
-        # geo 场景显式下发经纬度,供 RealWorldMap 渲染
-        assert isinstance(node["latitude"], float)
-        assert isinstance(node["longitude"], float)
-        assert -90.0 <= node["latitude"] <= 90.0
-        assert -180.0 <= node["longitude"] <= 180.0
-        # Static scene must carry no dynamic simulation fields
-        assert "demand" not in node
-
-    # store 类型节点,可被订单生成器选中
-    assert all(customer["type"] == "store" for customer in data["customers"])
-
-
 def test_campus_default_scene():
     """
     Calling without a scene argument defaults to xatu-campus.

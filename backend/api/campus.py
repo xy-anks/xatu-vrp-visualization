@@ -6,39 +6,11 @@ from backend.utils.scene_loader import load_scene
 router = APIRouter()
 
 
-def _serialize_node(node, coordinate_system):
-    """
-    Serialize a MapNode for the API response.
-
-    norm 字段始终下发(前端 SceneNode.norm 为必填类型,校园场景直接使用):
-      - coordinate_system == "norm": x, y 为归一化图片坐标
-      - coordinate_system == "geo":  x = longitude, y = latitude
-        (与 scene_loader 的通用平面坐标约定一致)
-    geo 场景额外显式下发 latitude / longitude,供前端 RealWorldMap 渲染。
-    """
-
-    data = {
-        "id": node.id,
-        "name": node.name,
-        "type": node.type,
-        "norm": {
-            "x": node.x,
-            "y": node.y
-        }
-    }
-
-    if coordinate_system == "geo":
-        data["latitude"] = node.y
-        data["longitude"] = node.x
-
-    return data
-
-
 @router.get("/campus")
 def get_campus(scene: str = "xatu-campus"):
     """
     Return the static description of a scene (Scene Layer):
-    map metadata, depot and customer nodes with coordinates.
+    map metadata, depot and customer nodes with normalized coordinates.
 
     No orders are generated and no VRPProblem is built here.
     """
@@ -61,10 +33,26 @@ def get_campus(scene: str = "xatu-campus"):
             "height": scene_map.map.height
         },
 
-        "depot": _serialize_node(scene_map.depot, scene_map.coordinate_system),
+        "depot": {
+            "id": scene_map.depot.id,
+            "name": scene_map.depot.name,
+            "type": scene_map.depot.type,
+            "norm": {
+                "x": scene_map.depot.x,
+                "y": scene_map.depot.y
+            }
+        },
 
         "customers": [
-            _serialize_node(customer, scene_map.coordinate_system)
+            {
+                "id": customer.id,
+                "name": customer.name,
+                "type": customer.type,
+                "norm": {
+                    "x": customer.x,
+                    "y": customer.y
+                }
+            }
             for customer in scene_map.customers
         ]
     }

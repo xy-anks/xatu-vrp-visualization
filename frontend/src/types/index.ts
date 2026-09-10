@@ -14,17 +14,13 @@ export interface NormCoord {
 // 场景静态节点(depot 或 customer)
 // 对应 backend/api/campus.py 中 depot / customers 元素
 // id 为场景稳定字符串 id(如 "depot" / "dorm_1"),不是距离矩阵下标
-// 坐标双体系:
-//   - 校园场景(coordinate_system="norm"):必填 norm
-//   - 真实世界场景(coordinate_system="geo"):可选 latitude/longitude
-// norm 保持必填:CampusImageMap 直接读取 node.norm.x/y,若改为可选需改动该组件
+// 当前仅支持 norm 归一化图片坐标;未来新增坐标系时在此扩展即可,
+// 坐标字段保持按坐标系分组(如 geo 场景可加 latitude/longitude)
 export interface SceneNode {
   id: string
   name: string
   type: string
   norm: NormCoord
-  latitude?: number
-  longitude?: number
 }
 
 // 地图图片元信息
@@ -115,8 +111,9 @@ export interface Order {
 }
 
 // ========== 前端场景类型(不影响后端)==========
-// 两个仿真场景:真实世界 / 西安工大校园
-export type Scene = 'real-world' | 'xatu-campus'
+// 当前仅西安工大校园一个仿真场景;Scene 保留为字符串字面量联合,
+// 未来新增场景时在此追加即可(Home/SceneSwitcher 均从 SCENES 渲染)
+export type Scene = 'xatu-campus'
 
 // 场景元信息:供 Home 按钮与 SceneSwitcher 复用
 export interface SceneMeta {
@@ -128,15 +125,9 @@ export interface SceneMeta {
 
 export const SCENES: SceneMeta[] = [
   {
-    id: 'real-world',
-    emoji: '🌍',
-    title: '真实世界物流模拟',
-    subtitle: 'Real World Simulation',
-  },
-  {
     id: 'xatu-campus',
     emoji: '🏫',
     title: '西安工大校园配送模拟',
-    subtitle: 'XATU Campus Simulation',
+    subtitle: 'XATU Campus VRP Simulator',
   },
 ]

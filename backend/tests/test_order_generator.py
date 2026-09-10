@@ -132,30 +132,6 @@ def test_count_exceeds_nodes_allows_duplicates():
         assert order.customer_id in orderable_ids
 
 
-def test_store_scene_orders():
-    """
-    real-world 场景的可配送节点是 store:订单必须全部落在
-    ORDERABLE_NODE_TYPES 类型的节点上,且都能在场景中解析。
-    """
-
-    scene = load_scene("real-world")
-
-    orders = generate_orders(
-        scene,
-        mode="random",
-        order_count=8,
-        seed=11
-    )
-
-    assert len(orders) == 8
-
-    for order in orders:
-        node = scene.node_by_id(order.customer_id)
-        assert node.type in ("dorm", "store")
-        # real-world 场景只有 store 类型的客户节点
-        assert node.type == "store"
-
-
 def test_invalid_arguments_raise():
     """
     Unknown mode, non-positive order_count and bad demand_range

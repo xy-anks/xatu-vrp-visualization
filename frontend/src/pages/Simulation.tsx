@@ -4,7 +4,6 @@ import { getAlgorithms } from '../api/algorithm'
 import { solve as solveApi } from '../api/solve'
 import type { Campus, Algorithm, SolveResponse, Scene, Order } from '../types'
 import CampusImageMap from '../components/CampusImageMap'
-import RealWorldMap from '../components/RealWorldMap'
 import AlgorithmSelector from '../components/AlgorithmSelector'
 import SimulationConfigPanel from '../components/SimulationConfigPanel'
 import OrderPanel from '../components/OrderPanel'
@@ -17,13 +16,6 @@ interface SimulationProps {
   onSceneChange: (scene: Scene) => void
   onGoHome: () => void
 }
-
-// 当前后端已注册静态数据的场景
-const SUPPORTED_MAP_SCENES: Scene[] = ['xatu-campus', 'real-world']
-
-// 可配送节点类型(与后端 order_generator.ORDERABLE_NODE_TYPES 口径一致):
-// xatu-campus 从宿舍(dorm)生成订单,real-world 从门店(store)生成订单
-const ORDERABLE_NODE_TYPES: string[] = ['dorm', 'store']
 
 // Simulation:VRP Dashboard 页面
 // 数据链路:getCampus(scene) 加载静态场景 -> solve({scene, algorithm, config}) 求解
@@ -54,8 +46,6 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
   const [solving, setSolving] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
-  const mapSupported = SUPPORTED_MAP_SCENES.includes(scene)
-
   // 页面加载 / 切换场景时拉取数据
   // scene 是唯一触发源:场景变化 -> 重新加载该场景数据 + 清空上一场景的求解结果
   useEffect(() => {
@@ -67,10 +57,9 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
       setSolveResult(null)
 
       try {
-        // 算法列表与场景无关;campus 仅对已注册场景请求,其余返回 null(占位)
         const [algorithmsData, campusData] = await Promise.all([
           getAlgorithms(),
-          mapSupported ? getCampus(scene) : Promise.resolve(null),
+          getCampus(scene),
         ])
 
         if (cancelled) return
@@ -95,7 +84,7 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
     return () => {
       cancelled = true
     }
-  }, [scene, mapSupported])
+  }, [scene])
 
   // 切换场景:清空订单与求解结果(数据加载由上面的 effect 负责)
   function handleSceneChange(newScene: Scene) {
@@ -104,10 +93,8 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
     setOrders([])
   }
 
-  // 生成订单:基于 campus.customers 中可配送类型的节点随机生成,
-  // orders 是求解的唯一订单数据源
-  // - 只从可配送节点(ORDERABLE_NODE_TYPES:dorm/store)中抽样
-  // - 随机选择 orderCount 个(数量不超过节点数时不重复抽样)
+  // 生成订单:基于 campus.customers 随机生成,orders 是求解的唯一订单数据源
+  // - 从客户节点中随机选择 orderCount 个(数量不超过节点数时不重复抽样)
   // - demand 在 [1, 10] 内随机(与后端 order_generator 默认区间一致)
   // 生成后 Solve 以 custom 模式把这批订单原样提交给后端;
   // 不重新生成即可改车辆/容量/算法对同一批订单重复实验
@@ -117,14 +104,7 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
       return
     }
 
-    const pool = campus.customers.filter((node) =>
-      ORDERABLE_NODE_TYPES.includes(node.type)
-    )
-
-    if (pool.length === 0) {
-      setError('场景中没有可配送节点,无法生成订单')
-      return
-    }
+    const pool = campus.customers
     const count = Math.max(1, orderCount)
     const selected: typeof pool = []
 
@@ -204,28 +184,16 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
           onGoHome={onGoHome}
         />
 
-        {/* 地图渲染层按场景分派(互相独立):
-            xatu-campus -> CampusImageMap(norm 坐标 -> SVG,含配送动画)
-            real-world  -> RealWorldMap(lat/lng -> Leaflet,静态路线 + RouteSummary,
-                         不接配送状态系统) */}
         {campus ? (
-          scene === 'real-world' ? (
-            <RealWorldMap
-              campus={campus}
-              solveResult={solveResult}
-              orders={orders}
-            />
-          ) : (
-            <CampusImageMap
-              campus={campus}
-              solveResult={solveResult}
-              orders={orders}
-              onDeliveryStatusChange={setDeliveryStatus}
-            />
-          )
+          <CampusImageMap
+            campus={campus}
+            solveResult={solveResult}
+            orders={orders}
+            onDeliveryStatusChange={setDeliveryStatus}
+          />
         ) : (
           <div className="placeholder">
-            {initLoading ? '正在加载场景数据...' : '地图数据加载失败'}
+            {initLoading ? '正在加载校园数据...' : '地图数据加载失败'}
           </div>
         )}
       </div>
@@ -251,11 +219,11 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
                 setVehicleCount(next.vehicleCount)
                 setCapacity(next.capacity)
               }}
-              disabled={solving || !mapSupported}
+              disabled={solving}
             />
             <button
               onClick={handleGenerateOrders}
-              disabled={solving || !mapSupported || !campus}
+              disabled={solving || !campus}
             >
               生成订单
             </button>
@@ -276,11 +244,11 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
               algorithms={algorithms}
               value={selectedAlgorithm}
               onChange={setSelectedAlgorithm}
-              disabled={solving || !mapSupported}
+              disabled={solving}
             />
             <button
               onClick={handleSolve}
-              disabled={solving || !selectedAlgorithm || !mapSupported}
+              disabled={solving || !selectedAlgorithm}
             >
               {solving ? '求解中...' : 'Solve'}
             </button>

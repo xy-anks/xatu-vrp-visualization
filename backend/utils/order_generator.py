@@ -3,9 +3,10 @@ import random
 from backend.models.order import Order
 
 
-# Node types that can receive delivery orders
-# (xatu-campus: dorm 宿舍 / real-world: store 门店)
-ORDERABLE_NODE_TYPES = ("dorm", "store")
+# Node types that can receive delivery orders.
+# Tuple (not a single literal) so new deliverable node types can be
+# appended here without touching the generation flow.
+ORDERABLE_NODE_TYPES = ("dorm",)
 
 
 def _eligible_customers(scene):

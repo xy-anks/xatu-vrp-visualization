@@ -54,9 +54,7 @@ function SceneSwitcher({
         onClick={() => setOpen((v) => !v)}
       >
         <span className="scene-emoji">{current.emoji}</span>
-        <span className="scene-label">
-          {current.id === 'real-world' ? 'Real World' : 'XATU Campus'}
-        </span>
+        <span className="scene-label">XATU Campus</span>
         <span className="scene-arrow">▼</span>
       </button>
 
