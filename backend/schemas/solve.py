@@ -85,3 +85,23 @@ class SolveResponse(BaseModel):
     algorithm: str
     routes: List[RouteResponse]
     total_distance: float
+
+
+class ComparisonItem(BaseModel):
+    """
+    One algorithm's result in a comparison run.
+    """
+    algorithm: str
+    vehicle_count: int
+    total_distance: float
+    solve_time: int  # milliseconds
+
+
+class ComparisonResponse(BaseModel):
+    """
+    Response for POST /solve/compare:
+    results from multiple algorithms on the same orders + vehicles.
+    """
+    scene: str
+    results: List[ComparisonItem]
+

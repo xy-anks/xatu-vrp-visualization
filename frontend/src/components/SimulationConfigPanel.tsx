@@ -10,15 +10,20 @@ interface SimulationConfigPanelProps {
   value: SimulationConfigValues
   onChange: (next: SimulationConfigValues) => void
   disabled?: boolean
+  // 限定显示哪些字段,缺省显示全部(用于分组布局)
+  fields?: Array<keyof SimulationConfigValues>
 }
 
 // SimulationConfigPanel:仿真参数面板(纯 UI)
 // 展示并修改:订单数量 / 车辆数量 / 车辆容量
 // 职责边界:不请求 API、不触发求解,仅通过 onChange 回传最新参数
+// fields prop 用于按卡片分组:配送任务卡片只显示 orderCount,
+// 配送车辆卡片显示 vehicleCount + capacity
 function SimulationConfigPanel({
   value,
   onChange,
   disabled,
+  fields,
 }: SimulationConfigPanelProps) {
   // 数字输入统一处理:空/非法值回退为 1,最小为 1
   const handleNumber =
@@ -29,7 +34,7 @@ function SimulationConfigPanel({
       onChange({ ...value, [key]: next })
     }
 
-  const fields: Array<{
+  const allFields: Array<{
     key: keyof SimulationConfigValues
     label: string
     min: number
@@ -39,9 +44,13 @@ function SimulationConfigPanel({
     { key: 'capacity', label: '车辆容量', min: 1 },
   ]
 
+  const visibleFields = fields
+    ? allFields.filter((f) => fields.includes(f.key))
+    : allFields
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {fields.map((field) => (
+      {visibleFields.map((field) => (
         <div key={field.key}>
           <label
             htmlFor={`config-${field.key}`}

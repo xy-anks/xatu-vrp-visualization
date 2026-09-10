@@ -110,6 +110,24 @@ export interface Order {
   demand: number
 }
 
+// ========== POST /solve/compare ==========
+
+// 单个算法在对比中的结果
+// 对应 backend/schemas/solve.py ComparisonItem
+export interface AlgorithmComparisonResult {
+  algorithm: string
+  vehicle_count: number
+  total_distance: number
+  solve_time: number  // 毫秒
+}
+
+// POST /solve/compare 完整响应
+// 对应 backend/schemas/solve.py ComparisonResponse
+export interface ComparisonResponse {
+  scene: string
+  results: AlgorithmComparisonResult[]
+}
+
 // ========== 前端场景类型(不影响后端)==========
 // 当前仅西安工大校园一个仿真场景;Scene 保留为字符串字面量联合,
 // 未来新增场景时在此追加即可(Home/SceneSwitcher 均从 SCENES 渲染)

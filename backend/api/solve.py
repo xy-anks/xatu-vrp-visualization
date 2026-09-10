@@ -1,9 +1,13 @@
+import time
+
 from fastapi import APIRouter, HTTPException
 
 from backend.schemas.solve import (
     SolveRequest,
     SolveResponse,
-    RouteResponse
+    RouteResponse,
+    ComparisonResponse,
+    ComparisonItem
 )
 
 from backend.solver.solver_registry import get_solver
@@ -14,6 +18,10 @@ from backend.utils.problem_builder import build_problem
 
 
 router = APIRouter()
+
+
+# 算法对比:第一阶段只跑最近邻 + 节约,Gurobi 留作未来扩展
+COMPARISON_ALGORITHMS = ["nearest_neighbor", "savings"]
 
 
 @router.post("/solve", response_model=SolveResponse)
@@ -121,3 +129,119 @@ def solve_vrp(request: SolveRequest):
         routes=routes,
         total_distance=result.total_distance
     )
+
+
+@router.post("/solve/compare", response_model=ComparisonResponse)
+def compare_algorithms(request: SolveRequest):
+    """
+    Run multiple algorithms on the same orders + vehicles and return
+    a side-by-side comparison.
+
+    The request format is identical to /solve (same SolveRequest),
+    but `request.algorithm` is ignored — we always run all algorithms
+    listed in COMPARISON_ALGORITHMS.
+
+    Pipeline (shared with /solve):
+        load_scene()        static world
+        generate_orders()   random or custom (same orders for every algo)
+        build_problem()     one VRPProblem per algorithm (identical)
+        for each algorithm:
+            get_solver().solve()
+            record vehicle_count, total_distance, solve_time
+    """
+
+    config = request.config
+
+    # ---- 1. Static scene ----
+    try:
+        scene_map = load_scene(request.scene)
+    except (ValueError, FileNotFoundError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        )
+
+    # ---- 2. Order layer: generate once, reuse for all algorithms ----
+    try:
+        if config.mode == "random":
+            orders = generate_orders(
+                scene_map,
+                mode="random",
+                order_count=config.order_count,
+                seed=config.seed
+            )
+
+        elif config.mode == "custom":
+            if not config.orders:
+                raise ValueError(
+                    "'custom' mode requires a non-empty 'orders' list"
+                )
+
+            orders = [
+                Order(
+                    order_id=index,
+                    customer_id=item.customer_id,
+                    demand=item.demand
+                )
+                for index, item in enumerate(config.orders)
+            ]
+
+        else:
+            raise ValueError(
+                f"Unsupported order mode: '{config.mode}'. "
+                f"Supported modes: ['random', 'custom']"
+            )
+
+        # ---- 3. Build one problem (identical for all algorithms) ----
+        problem, _ = build_problem(
+            scene_map,
+            orders,
+            vehicle_count=config.vehicle_count,
+            vehicle_capacity=config.capacity
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        )
+
+    # ---- 4. Run each algorithm and record results ----
+    results = []
+
+    for algo_name in COMPARISON_ALGORITHMS:
+        try:
+            solver = get_solver(algo_name)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=str(exc)
+            )
+
+        t0 = time.perf_counter()
+        result = solver.solve(problem)
+        elapsed_ms = int((time.perf_counter() - t0) * 1000)
+
+        if result is None:
+            results.append(
+                ComparisonItem(
+                    algorithm=algo_name,
+                    vehicle_count=0,
+                    total_distance=0.0,
+                    solve_time=elapsed_ms
+                )
+            )
+        else:
+            results.append(
+                ComparisonItem(
+                    algorithm=result.algorithm,
+                    vehicle_count=len(result.routes),
+                    total_distance=round(result.total_distance, 2),
+                    solve_time=elapsed_ms
+                )
+            )
+
+    return ComparisonResponse(
+        scene=scene_map.scene_id,
+        results=results
+    )
+

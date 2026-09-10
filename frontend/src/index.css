@@ -26,17 +26,17 @@ body,
 }
 
 .control-section {
-  width: 320px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-left: 1px solid #e0e0e0;
+  width: 340px;
+  padding: 16px;
+  background: #fdf8f0;
+  border-left: 1px solid #e8dcc8;
   overflow-y: auto;
 }
 
 h1 {
   font-size: 20px;
   margin-bottom: 16px;
-  color: #1a237e;
+  color: #5d4037;
 }
 
 /* 占位提示 */
@@ -70,21 +70,61 @@ h1 {
 button {
   width: 100%;
   padding: 10px;
-  background: #1976d2;
+  background: #c99a2e;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(201, 154, 46, 0.3);
 }
 
 button:hover {
-  background: #1565c0;
+  background: #b8881f;
+  box-shadow: 0 5px 14px rgba(201, 154, 46, 0.4);
 }
 
 button:disabled {
-  background: #b0bec5;
+  background: #d4c5a8;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 暖色主按钮(与 Home 一致的琥珀色) */
+.btn-primary {
+  background: #c99a2e;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #b8881f;
+}
+
+.btn-primary:disabled {
+  background: #d4c5a8;
+}
+
+/* 次按钮:算法对比(暖色描边,不抢主按钮视觉) */
+.btn-secondary {
+  background: #fdf8f0;
+  color: #8d6e63;
+  border: 1.5px solid #d4c5a8;
+  box-shadow: none;
+  margin-top: 8px;
+}
+
+.btn-secondary:hover {
+  background: #f5ede0;
+  border-color: #c99a2e;
+  color: #b8881f;
+}
+
+.btn-secondary:disabled {
+  background: #f5f0e8;
+  color: #bca995;
+  border-color: #e8dcc8;
 }
 
 /* 下拉框 */
@@ -92,10 +132,10 @@ select {
   width: 100%;
   padding: 8px;
   margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid #d4c5a8;
+  border-radius: 8px;
   font-size: 14px;
-  background: white;
+  background: #fffaf3;
 }
 
 /* 统计项 */
@@ -120,90 +160,515 @@ select {
   font-size: 14px;
   font-weight: bold;
   margin: 16px 0 8px;
-  color: #424242;
+  color: #5d4037;
 }
 
 /* =====================================================
-   Home 页面样式
+   控制面板卡片样式 —— 温暖校园风
+   ===================================================== */
+.panel-card {
+  background: #fffaf3;
+  border: 1px solid #e8dcc8;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.06);
+}
+
+.panel-card-header {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5d4037;
+  background: #f5ede0;
+  border-bottom: 1px solid #e8dcc8;
+}
+
+.panel-card-body {
+  padding: 12px 14px;
+}
+
+/* 卡片内分区线:在输入区和按钮之间留白,增加操作层次 */
+.panel-divider {
+  height: 1px;
+  margin: 8px 0;
+}
+
+/* 统计网格:3 列紧凑布局 */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.stat-cell {
+  text-align: center;
+  padding: 6px 4px;
+  background: #faf3e8;
+  border-radius: 8px;
+}
+
+.stat-cell .stat-label {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.stat-cell .stat-value {
+  display: block;
+  font-size: 15px;
+}
+
+/* =====================================================
+   算法说明弹窗 —— 温暖校园风 Modal
+   ===================================================== */
+
+/* 算法选择行:下拉框 + ? 按钮并排 */
+.algo-selector-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.algo-selector-row > div:first-child {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+/* ? 帮助按钮:小圆形,上移 8px 与标签对齐 */
+.algo-help-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
+  background: #f5ede0;
+  color: #8d6e63;
+  border: 1px solid #d4c5a8;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-12px);
+  transition: background 0.2s ease;
+}
+
+.algo-help-btn:hover {
+  background: #e8dcc8;
+}
+
+.algo-help-btn:disabled {
+  background: #f0f0f0;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Modal 遮罩 */
+.algo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: algoModalFadeIn 0.25s ease forwards;
+}
+
+/* Modal 卡片 */
+.algo-modal-card {
+  background: #fffaf3;
+  border: 1px solid #e8dcc8;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(93, 64, 55, 0.2);
+  padding: 24px 28px;
+  max-width: 420px;
+  width: 90%;
+  animation: algoModalScaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes algoModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes algoModalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.algo-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #5d4037;
+  margin: 0 0 16px 0;
+}
+
+.algo-modal-section {
+  margin-bottom: 14px;
+}
+
+.algo-modal-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8d6e63;
+  margin: 0 0 4px 0;
+}
+
+.algo-modal-section-text {
+  font-size: 14px;
+  color: #5d4037;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.algo-modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.algo-modal-list--pros li {
+  color: #43a047;
+}
+
+.algo-modal-list--cons li {
+  color: #e57373;
+}
+
+/* 关闭按钮 */
+.algo-modal-close {
+  margin-top: 18px;
+}
+
+/* =====================================================
+   Home 启动界面 —— XATU Campus VRP Simulator
+   三阶段:cover(封面) → story(故事) → loading(初始化)
+   温暖校园风:暖白文字 + 琥珀点缀,黑色遮罩,无科技蓝
    ===================================================== */
 .home-page {
-  min-height: 100vh;
+  position: relative;
+  height: 100vh;
   width: 100%;
-  background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf3 100%);
+  overflow: hidden;
+}
+
+/* 共享背景:进入即轻微虚化 + 稍降亮度,阶段间保持固定 */
+.home-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/campus-home.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: blur(3px) brightness(0.8);
+  transform: scale(1.04); /* 虚化后边缘不露白 */
+  z-index: 0;
+}
+
+/* 黑色半透明遮罩:cover 较浅,story/loading 略加深,缓慢过渡 */
+.home-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  transition: background 0.8s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.home-page--story .home-overlay,
+.home-page--loading .home-overlay {
+  background: rgba(0, 0, 0, 0.52);
+}
+
+/* 阶段内容舞台 */
+.home-stage {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.home-content {
-  text-align: center;
-  max-width: 520px;
-  padding: 40px 20px;
+/* 通用入场:淡入 + 轻微上浮 */
+@keyframes homeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.home-title {
-  font-size: 34px;
+.home-anim-up {
+  opacity: 0;
+  animation: homeFadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.home-anim-d1 {
+  animation-delay: 0.25s;
+}
+
+.home-anim-d2 {
+  animation-delay: 0.5s;
+}
+
+.home-anim-d3 {
+  animation-delay: 0.75s;
+}
+
+/* ---------- 阶段一:封面 ---------- */
+.home-cover {
+  text-align: center;
+  max-width: 640px;
+  padding: 24px;
+}
+
+.home-cover-title {
+  font-size: 56px;
   font-weight: 700;
-  color: #1a237e;
-  margin-bottom: 16px;
+  color: #faf6ef;
+  letter-spacing: 3px;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+.home-cover-subtitle {
+  font-size: 28px;
+  font-weight: 500;
+  color: #e8c87a;
+  letter-spacing: 6px;
+  margin: 0 0 22px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.home-cover-cn {
+  font-size: 16px;
+  color: #efe6d4;
+  letter-spacing: 3px;
+  margin: 0 0 44px 0;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* 开始配送按钮:琥珀暖色调,自然阴影,圆角 */
+.home-start-btn {
+  width: auto;
+  padding: 14px 48px;
+  background: #c99a2e;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.home-start-btn:hover {
+  background: #b8881f;
+  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.42);
+}
+
+.home-start-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- 阶段二:故事引入 ---------- */
+/* 容器:固定高度,挂载时淡入,卸载时淡出 */
+.home-story {
+  position: relative;
+  height: 460px;
+  width: 100%;
+  max-width: 720px;
+  padding: 0 24px;
+  animation: homeStoryEnter 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* 容器离场:Home 层加 --leaving 修饰时反向淡出 */
+.home-story--leaving {
+  animation: homeStoryLeave 1s ease-in forwards;
+}
+
+@keyframes homeStoryEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes homeStoryLeave {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 单条文案:绝对定位,top 由 --idx 决定,新增文案不影响已有文案位置 */
+/* 入场动画只控制 opacity + translateY,与 top 定位互不冲突 */
+.home-story-beat {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  top: calc(var(--idx, 0) * 52px);
+  margin: 0;
+  text-align: center;
+  opacity: 0;
+  animation: homeBeatEnter 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 文案入场:opacity 0→1 + translateY(15px)→0,丝滑缓动 */
+/* 位移幅度小(15px),避免新文案出现时产生明显上移感 */
+@keyframes homeBeatEnter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-story-time {
+  font-size: 40px;
+  font-weight: 700;
+  color: #e8c87a;
+  letter-spacing: 4px;
+}
+
+.home-story-line {
+  font-size: 19px;
+  color: #f3ecdd;
+  letter-spacing: 2px;
+}
+
+.home-story-chip {
+  font-size: 21px;
+  color: #faf6ef;
+  letter-spacing: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(232, 200, 122, 0.35);
+  border-radius: 999px;
+  padding: 8px 22px;
+  backdrop-filter: blur(2px);
+  display: inline-block;
+}
+
+.home-story-question {
+  font-size: 24px;
+  font-weight: 600;
+  color: #faf6ef;
+  letter-spacing: 2px;
+  line-height: 1.5;
+}
+
+.home-story-question:last-child {
+  color: #e8c87a;
+}
+
+/* ---------- 阶段三:系统初始化 ---------- */
+.home-loading {
+  text-align: left;
+  padding: 32px 40px;
+  background: rgba(30, 22, 12, 0.45);
+  border: 1px solid rgba(232, 200, 122, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+  animation: homeFadeUp 0.6s ease forwards;
+  min-width: 320px;
+}
+
+.home-loading-title {
+  font-size: 18px;
+  color: #f3ecdd;
+  letter-spacing: 2px;
+  margin: 0 0 22px 0;
+}
+
+.home-loading-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.home-loading-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
   letter-spacing: 1px;
 }
 
-.home-subtitle {
-  font-size: 16px;
-  color: #546e7a;
-  line-height: 1.8;
-  margin-bottom: 40px;
-}
-
-.home-hint {
-  font-size: 14px;
-  color: #78909c;
-  margin-bottom: 24px;
-}
-
-.home-scene-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;
-}
-
-.home-scene-btn {
-  width: 420px;
-  max-width: 100%;
-  padding: 22px 28px;
-  background: #ffffff;
-  border: 1px solid #cfd8dc;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-  text-align: left;
-}
-
-.home-scene-btn:hover {
-  box-shadow: 0 6px 20px rgba(26, 35, 126, 0.12);
-  border-color: #1976d2;
-}
-
-.home-scene-emoji {
-  font-size: 32px;
-  line-height: 1;
-}
-
-.home-scene-text strong {
+.home-loading-icon {
+  width: 22px;
+  text-align: center;
   font-size: 17px;
-  color: #263238;
-  display: block;
-  margin-bottom: 2px;
 }
 
-.home-scene-text small {
+/* 进行中:转圈 */
+.home-loading-item.is-active {
+  color: #f3ecdd;
+}
+
+.home-loading-item.is-active .home-loading-icon {
+  display: inline-block;
+  color: #e8c87a;
+  animation: homeSpin 0.9s linear infinite;
+}
+
+@keyframes homeSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 已完成:对勾 */
+.home-loading-item.is-done {
+  color: #9ccc8f;
+}
+
+/* 未开始:弱化 */
+.home-loading-item.is-pending {
+  color: rgba(243, 236, 221, 0.35);
+}
+
+.home-loading-item.is-pending .home-loading-icon {
   font-size: 12px;
-  color: #78909c;
 }
 
 /* =====================================================
@@ -319,4 +784,176 @@ select {
 .scene-option-text small {
   font-size: 11px;
   color: #78909c;
+}
+
+/* =====================================================
+   算法对比弹窗(ComparisonCard)
+   覆盖在地图正中央,不影响右侧控制面板
+   ===================================================== */
+.comparison-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  animation: compFadeIn 0.3s ease forwards;
+}
+
+.comparison-overlay.leaving {
+  animation: compFadeOut 0.25s ease forwards;
+}
+
+.comparison-card {
+  background: #fffaf3;
+  border: 1px solid #e8dcc8;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(93, 64, 55, 0.25);
+  padding: 24px 28px;
+  max-width: 440px;
+  width: 90%;
+  animation: compScaleIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.comparison-card.leaving {
+  animation: compScaleOut 0.25s ease forwards;
+}
+
+@keyframes compFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes compFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes compScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes compScaleOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+
+.comparison-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #5d4037;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.comparison-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.comparison-item {
+  padding: 14px 0;
+}
+
+.comparison-item.with-top-border {
+  border-top: 1px solid #f0e6d6;
+}
+
+.comparison-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.comparison-algo-emoji {
+  font-size: 20px;
+}
+
+.comparison-algo-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #5d4037;
+}
+
+.comparison-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #c99a2e;
+  border-radius: 10px;
+  padding: 2px 10px;
+}
+
+.comparison-metrics {
+  display: flex;
+  gap: 20px;
+}
+
+.comparison-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #a1887f;
+}
+
+.metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5d4037;
+}
+
+.comparison-summary {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: #fdf6e3;
+  border: 1px solid #f0e0c0;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #8d6e63;
+  margin-bottom: 4px;
+}
+
+.summary-algo {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c99a2e;
+  margin-bottom: 4px;
+}
+
+.summary-reason {
+  font-size: 13px;
+  color: #6d5847;
+  line-height: 1.5;
+}
+
+.comparison-close-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 9px;
+  background: #f5ede0;
+  color: #8d6e63;
+  border: 1px solid #d4c5a8;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.comparison-close-btn:hover {
+  background: #f0e6d6;
+  border-color: #c99a2e;
+  color: #b8881f;
 }

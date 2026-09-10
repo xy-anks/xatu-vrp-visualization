@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react'
 import { getCampus } from '../api/campus'
 import { getAlgorithms } from '../api/algorithm'
-import { solve as solveApi } from '../api/solve'
-import type { Campus, Algorithm, SolveResponse, Scene, Order } from '../types'
+import { solve as solveApi, solveCompare } from '../api/solve'
+import type {
+  Campus,
+  Algorithm,
+  SolveResponse,
+  Scene,
+  Order,
+  AlgorithmComparisonResult,
+} from '../types'
 import CampusImageMap from '../components/CampusImageMap'
 import AlgorithmSelector from '../components/AlgorithmSelector'
+import AlgorithmModal from '../components/AlgorithmModal'
 import SimulationConfigPanel from '../components/SimulationConfigPanel'
 import OrderPanel from '../components/OrderPanel'
 import StatsPanel from '../components/StatsPanel'
 import SceneSwitcher from '../components/SceneSwitcher'
+import ComparisonCard from '../components/ComparisonCard'
 import type { DeliveryStatus } from '../hooks/useDeliveryStatus'
 
 interface SimulationProps {
@@ -45,6 +54,11 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
   const [initLoading, setInitLoading] = useState<boolean>(true)
   const [solving, setSolving] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [showAlgoModal, setShowAlgoModal] = useState<boolean>(false)
+
+  // ---- 算法对比 ----
+  const [comparing, setComparing] = useState<boolean>(false)
+  const [comparisonResults, setComparisonResults] = useState<AlgorithmComparisonResult[]>([])
 
   // 页面加载 / 切换场景时拉取数据
   // scene 是唯一触发源:场景变化 -> 重新加载该场景数据 + 清空上一场景的求解结果
@@ -173,6 +187,38 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
     }
   }
 
+  // 点击「算法对比」按钮:用同一批订单 + 同一车辆约束,
+  // 后端分别跑 nearest_neighbor 和 savings,返回对比结果
+  async function handleCompare() {
+    if (orders.length === 0) {
+      setError('请先生成订单')
+      return
+    }
+
+    setComparing(true)
+    setError(null)
+    try {
+      const resp = await solveCompare({
+        scene,
+        algorithm: selectedAlgorithm,
+        config: {
+          mode: 'custom',
+          orders: orders.map((order) => ({
+            customer_id: order.customer_id,
+            demand: order.demand,
+          })),
+          vehicle_count: vehicleCount,
+          capacity,
+        },
+      })
+      setComparisonResults(resp.results)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '算法对比失败')
+    } finally {
+      setComparing(false)
+    }
+  }
+
   return (
     <div className="app-container">
       {/* 左侧地图区域 */}
@@ -196,6 +242,14 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
             {initLoading ? '正在加载校园数据...' : '地图数据加载失败'}
           </div>
         )}
+
+        {/* 算法对比弹窗:覆盖在地图正中央 */}
+        {comparisonResults.length > 0 && (
+          <ComparisonCard
+            results={comparisonResults}
+            onClose={() => setComparisonResults([])}
+          />
+        )}
       </div>
 
       {/* 右侧控制面板 */}
@@ -208,82 +262,134 @@ function Simulation({ scene, onSceneChange, onGoHome }: SimulationProps) {
         {/* 初始化加载中 */}
         {initLoading && <p className="placeholder-inline">正在加载...</p>}
 
-        {/* 主体内容:初始化完成后显示 */}
+        {/* 主体内容:初始化完成后显示,按操作流程分 4 个卡片 */}
         {!initLoading && (
           <>
-            <div className="section-title">仿真参数</div>
-            <SimulationConfigPanel
-              value={{ orderCount, vehicleCount, capacity }}
-              onChange={(next) => {
-                setOrderCount(next.orderCount)
-                setVehicleCount(next.vehicleCount)
-                setCapacity(next.capacity)
-              }}
-              disabled={solving}
-            />
-            <button
-              onClick={handleGenerateOrders}
-              disabled={solving || !campus}
-            >
-              生成订单
-            </button>
+            {/* ===== 第一部分:配送任务 ===== */}
+            <div className="panel-card">
+              <div className="panel-card-header">📦 配送任务</div>
+              <div className="panel-card-body">
+                <SimulationConfigPanel
+                  value={{ orderCount, vehicleCount, capacity }}
+                  onChange={(next) => {
+                    setOrderCount(next.orderCount)
+                    setVehicleCount(next.vehicleCount)
+                    setCapacity(next.capacity)
+                  }}
+                  disabled={solving}
+                  fields={['orderCount']}
+                />
+                <div className="panel-divider" />
+                <button
+                  className="btn-primary"
+                  onClick={handleGenerateOrders}
+                  disabled={solving || !campus}
+                >
+                  生成配送任务
+                </button>
 
-            <div className="section-title" style={{ marginTop: 20 }}>
-              订单
-            </div>
-            <OrderPanel
-              orders={orders}
-              deliveredCustomerIds={deliveryStatus.deliveredCustomerIds}
-              activeCustomerIds={deliveryStatus.activeCustomerIds}
-            />
-
-            <div className="section-title" style={{ marginTop: 20 }}>
-              算法选择
-            </div>
-            <AlgorithmSelector
-              algorithms={algorithms}
-              value={selectedAlgorithm}
-              onChange={setSelectedAlgorithm}
-              disabled={solving}
-            />
-            <button
-              onClick={handleSolve}
-              disabled={solving || !selectedAlgorithm}
-            >
-              {solving ? '求解中...' : 'Solve'}
-            </button>
-
-            <div className="section-title" style={{ marginTop: 20 }}>
-              求解结果
-            </div>
-            <StatsPanel solveResult={solveResult} solving={solving} />
-
-            <div className="section-title" style={{ marginTop: 20 }}>
-              场景数据
-            </div>
-            <div>
-              <div className="stat-item">
-                <span className="stat-label">场景</span>
-                <span className="stat-value">{scene}</span>
-              </div>
-              {campus && (
-                <>
-                  <div className="stat-item">
-                    <span className="stat-label">Depot</span>
-                    <span className="stat-value">{campus.depot.name}</span>
+                {/* 任务统计 */}
+                <div className="stat-grid">
+                  <div className="stat-cell">
+                    <span className="stat-label">当前订单</span>
+                    <span className="stat-value">{orders.length} 单</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">候选节点</span>
+                  <div className="stat-cell">
+                    <span className="stat-label">总需求量</span>
                     <span className="stat-value">
-                      {campus.customers.length} 个
+                      {orders.reduce((s, o) => s + o.demand, 0)} 件
                     </span>
                   </div>
-                </>
-              )}
+                  <div className="stat-cell">
+                    <span className="stat-label">配送节点</span>
+                    <span className="stat-value">
+                      {campus?.customers.length ?? 0} 个
+                    </span>
+                  </div>
+                </div>
+
+                {/* 订单列表 */}
+                <OrderPanel
+                  orders={orders}
+                  deliveredCustomerIds={deliveryStatus.deliveredCustomerIds}
+                  activeCustomerIds={deliveryStatus.activeCustomerIds}
+                />
+              </div>
+            </div>
+
+            {/* ===== 第二部分:配送车辆 ===== */}
+            <div className="panel-card">
+              <div className="panel-card-header">🚚 配送车辆</div>
+              <div className="panel-card-body">
+                <SimulationConfigPanel
+                  value={{ orderCount, vehicleCount, capacity }}
+                  onChange={(next) => {
+                    setOrderCount(next.orderCount)
+                    setVehicleCount(next.vehicleCount)
+                    setCapacity(next.capacity)
+                  }}
+                  disabled={solving}
+                  fields={['vehicleCount', 'capacity']}
+                />
+              </div>
+            </div>
+
+            {/* ===== 第三部分:路径优化 ===== */}
+            <div className="panel-card">
+              <div className="panel-card-header">🧠 路径优化</div>
+              <div className="panel-card-body">
+                <div className="algo-selector-row">
+                  <AlgorithmSelector
+                    algorithms={algorithms}
+                    value={selectedAlgorithm}
+                    onChange={setSelectedAlgorithm}
+                    disabled={solving}
+                  />
+                  <button
+                    type="button"
+                    className="algo-help-btn"
+                    onClick={() => setShowAlgoModal(true)}
+                    disabled={!selectedAlgorithm}
+                    aria-label="算法说明"
+                  >
+                    ?
+                  </button>
+                </div>
+                <button
+                  className="btn-primary"
+                  onClick={handleSolve}
+                  disabled={solving || comparing || !selectedAlgorithm}
+                >
+                  {solving ? '求解中...' : '开始优化'}
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={handleCompare}
+                  disabled={solving || comparing || orders.length === 0}
+                >
+                  {comparing ? '对比中...' : '算法对比'}
+                </button>
+              </div>
+            </div>
+
+            {/* ===== 第四部分:优化结果 ===== */}
+            <div className="panel-card">
+              <div className="panel-card-header">📊 优化结果</div>
+              <div className="panel-card-body">
+                <StatsPanel solveResult={solveResult} solving={solving} />
+              </div>
             </div>
           </>
         )}
       </div>
+
+      {/* 算法说明弹窗 */}
+      {showAlgoModal && (
+        <AlgorithmModal
+          algorithm={selectedAlgorithm}
+          onClose={() => setShowAlgoModal(false)}
+        />
+      )}
     </div>
   )
 }
